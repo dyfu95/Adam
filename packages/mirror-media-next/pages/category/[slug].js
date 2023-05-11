@@ -1,12 +1,18 @@
 import errors from '@twreporter/errors'
 import styled from 'styled-components'
 
+import axios from 'axios'
 import client from '../../apollo/apollo-client'
 import { fetchPosts } from '../../apollo/query/posts'
 import { fetchCategorySections } from '../../apollo/query/categroies'
 import CategoryArticles from '../../components/category/category-articles'
+import ShareHeader from '../../components/shared/share-header'
 import { GCP_PROJECT_ID } from '../../config/index.mjs'
 
+import {
+  fetchHeaderDataInDefaultPageLayout,
+  fetchHeaderDataInPremiumPageLayout,
+} from '../../utils/axios'
 const CategoryContainer = styled.main`
   width: 320px;
   margin: 0 auto;
@@ -114,28 +120,41 @@ const RENDER_PAGE_SIZE = 12
  * @param {Category} props.category
  * @param {number} props.postsCount
  * @param {boolean} props.isPremium
+ * @param {Object} props.headerData
  * @returns {React.ReactElement}
  */
-export default function Category({ postsCount, posts, category, isPremium }) {
+export default function Category({
+  postsCount,
+  posts,
+  category,
+  isPremium,
+  headerData,
+}) {
   return (
-    <CategoryContainer isPremium={isPremium}>
-      {isPremium ? (
-        <PremiumCategoryTitle sectionName={category?.sections?.slug}>
-          {category?.name}
-        </PremiumCategoryTitle>
-      ) : (
-        <CategoryTitle sectionName={category?.sections?.slug}>
-          {category?.name}
-        </CategoryTitle>
-      )}
-      <CategoryArticles
-        postsCount={postsCount}
-        posts={posts}
-        category={category}
-        renderPageSize={RENDER_PAGE_SIZE}
-        isPremium={isPremium}
+    <>
+      <ShareHeader
+        pageLayoutType={isPremium ? 'premium' : 'default'}
+        headerData={headerData}
       />
-    </CategoryContainer>
+      <CategoryContainer isPremium={isPremium}>
+        {isPremium ? (
+          <PremiumCategoryTitle sectionName={category?.sections?.slug}>
+            {category?.name}
+          </PremiumCategoryTitle>
+        ) : (
+          <CategoryTitle sectionName={category?.sections?.slug}>
+            {category?.name}
+          </CategoryTitle>
+        )}
+        <CategoryArticles
+          postsCount={postsCount}
+          posts={posts}
+          category={category}
+          renderPageSize={RENDER_PAGE_SIZE}
+          isPremium={isPremium}
+        />
+      </CategoryContainer>
+    </>
   )
 }
 
@@ -216,12 +235,40 @@ export async function getServerSideProps({ query, req }) {
   /** @type {Category} */
   const category = handledResponses[1]?.category || {}
   const isPremium = category.isMemberOnly
-
+  let sectionsData = []
+  let topicsData = []
+  try {
+    if (isPremium) {
+      const headerData = await fetchHeaderDataInPremiumPageLayout(
+        globalLogFields
+      )
+      sectionsData = headerData.sectionsData
+    } else {
+      const headerData = await fetchHeaderDataInDefaultPageLayout(
+        globalLogFields
+      )
+      sectionsData = headerData.sectionsData
+      topicsData = headerData.topicsData
+    }
+  } catch (err) {
+    const annotatingAxiosError = errors.helpers.annotateAxiosError(err)
+    console.error(
+      JSON.stringify({
+        severity: 'ERROR',
+        message: errors.helpers.printAll(annotatingAxiosError, {
+          withStack: true,
+          withPayload: true,
+        }),
+        ...globalLogFields,
+      })
+    )
+  }
   const props = {
     postsCount,
     posts,
     category,
     isPremium,
+    headerData: { sectionsData, topicsData },
   }
   return { props }
 }
