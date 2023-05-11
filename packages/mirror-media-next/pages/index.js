@@ -2,6 +2,7 @@
 //should fetch only once by using Redux.
 //TODO: add typedef of editor choice data
 //TODO: add component to add html head dynamically, not jus write head in every pag
+//TODO: add jsDoc of `props.sectionsData`
 import React, { useMemo } from 'react'
 import styled from 'styled-components'
 import axios from 'axios'
@@ -12,18 +13,18 @@ import { gql } from '@apollo/client'
 import {
   ENV,
   API_TIMEOUT,
-  URL_STATIC_COMBO_TOPICS,
   URL_K3_FLASH_NEWS,
   URL_STATIC_POST_EXTERNAL,
   GCP_PROJECT_ID,
 } from '../config/index.mjs'
-
+import { fetchHeaderDataInDefaultPageLayout } from '../utils/axios'
 import { transformRawDataToArticleInfo } from '../utils'
 import FlashNews from '../components/flash-news'
 import NavTopics from '../components/nav-topics'
 import SubscribeMagazine from '../components/subscribe-magazine'
 import EditorChoice from '../components/editor-choice'
 import LatestNews from '../components/latest-news'
+import ShareHeader from '../components/shared/share-header'
 const IndexContainer = styled.main`
   background-color: rgba(255, 255, 255, 1);
   max-width: 596px;
@@ -46,6 +47,7 @@ const IndexTop = styled.div`
  * @param {import('../type').FlashNews[]} props.flashNewsData
  * @param {import('../type/raw-data.typedef').RawData[] } [props.editorChoicesData=[]]
  * @param {import('../type/raw-data.typedef').RawData[] } [props.latestNewsData=[]]
+ * @param {Object[] } props.sectionsData
  * @param {String} [props.latestNewsTimestamp]
  * @returns {React.ReactElement}
  */
@@ -55,6 +57,7 @@ export default function Home({
   editorChoicesData = [],
   latestNewsData = [],
   latestNewsTimestamp,
+  sectionsData = [],
 }) {
   const flashNews = flashNewsData.map(({ slug, title }) => {
     return {
@@ -68,8 +71,13 @@ export default function Home({
     () => topicsData.filter((topic) => topic.isFeatured).slice(0, 9) ?? [],
     [topicsData]
   )
+
   return (
     <>
+      <ShareHeader
+        pageLayoutType="default"
+        headerData={{ sectionsData: sectionsData, topicsData }}
+      />
       <Head>
         <title>鏡週刊 Mirror Media</title>
       </Head>
@@ -139,15 +147,9 @@ export async function getServerSideProps({ res, req }) {
   let editorChoicesData = []
   let latestNewsData = []
   let latestNewsTimestamp = null
-
-  //request fetched by axios, should be replaced to `apollo-client` in the future
+  let sectionsData = []
   try {
     const responses = await Promise.allSettled([
-      axios({
-        method: 'get',
-        url: URL_STATIC_COMBO_TOPICS,
-        timeout: API_TIMEOUT,
-      }),
       axios({
         method: 'get',
         url: URL_K3_FLASH_NEWS,
@@ -160,6 +162,9 @@ export async function getServerSideProps({ res, req }) {
       }),
     ])
 
+    const headerData = await fetchHeaderDataInDefaultPageLayout(globalLogFields)
+    sectionsData = headerData.sectionsData
+    topicsData = headerData.topicsData
     responses.forEach((response) => {
       if (response.status === 'fulfilled') {
         console.log(
@@ -175,28 +180,27 @@ export async function getServerSideProps({ res, req }) {
         console.error(
           JSON.stringify({
             severity: 'ERROR',
-            message: errors.helpers.printAll(annotatingAxiosError, {
-              withStack: true,
-              withPayload: true,
-            }),
+            message: errors.helpers.printAll(
+              annotatingAxiosError,
+              {
+                withStack: true,
+                withPayload: true,
+              },
+              0,
+              0
+            ),
           })
         )
       }
     })
 
     /** @type {PromiseFulfilledResult<AxiosResponse>} */
-    const topicsResponse = responses[0].status === 'fulfilled' && responses[0]
-    /** @type {PromiseFulfilledResult<AxiosResponse>} */
     const flashNewsResponse =
-      responses[1].status === 'fulfilled' && responses[1]
+      responses[0].status === 'fulfilled' && responses[0]
 
     /** @type {PromiseFulfilledResult<AxiosPostResponse>} */
-    const postResponse = responses[2].status === 'fulfilled' && responses[2]
-    topicsData = Array.isArray(
-      topicsResponse?.value?.data?._endpoints?.topics?._items
-    )
-      ? topicsResponse?.value?.data?._endpoints?.topics?._items
-      : []
+    const postResponse = responses[1].status === 'fulfilled' && responses[1]
+
     flashNewsData = Array.isArray(flashNewsResponse.value?.data?._items)
       ? flashNewsResponse.value?.data?._items
       : []
@@ -303,6 +307,7 @@ export async function getServerSideProps({ res, req }) {
       editorChoicesData,
       latestNewsData,
       latestNewsTimestamp,
+      sectionsData,
     },
   }
 }
