@@ -12,7 +12,7 @@ import { GCP_PROJECT_ID } from '../../config/index.mjs'
 import {
   fetchHeaderDataInDefaultPageLayout,
   fetchHeaderDataInPremiumPageLayout,
-} from '../../utils/axios'
+} from '../../utils/api'
 const CategoryContainer = styled.main`
   width: 320px;
   margin: 0 auto;
