@@ -17,7 +17,7 @@ import {
   URL_STATIC_POST_EXTERNAL,
   GCP_PROJECT_ID,
 } from '../config/index.mjs'
-import { fetchHeaderDataInDefaultPageLayout } from '../utils/axios'
+import { fetchHeaderDataInDefaultPageLayout } from '../utils/api'
 import { transformRawDataToArticleInfo } from '../utils'
 import FlashNews from '../components/flash-news'
 import NavTopics from '../components/nav-topics'
