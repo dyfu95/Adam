@@ -239,16 +239,18 @@ export async function getServerSideProps({ query, req }) {
   let topicsData = []
   try {
     if (isPremium) {
-      const headerData = await fetchHeaderDataInPremiumPageLayout(
-        globalLogFields
-      )
-      sectionsData = headerData.sectionsData
+      const headerData = await fetchHeaderDataInPremiumPageLayout()
+      if (Array.isArray(headerData.sectionsData)) {
+        sectionsData = headerData.sectionsData
+      }
     } else {
-      const headerData = await fetchHeaderDataInDefaultPageLayout(
-        globalLogFields
-      )
-      sectionsData = headerData.sectionsData
-      topicsData = headerData.topicsData
+      const headerData = await fetchHeaderDataInDefaultPageLayout()
+      if (Array.isArray(headerData.sectionsData)) {
+        sectionsData = headerData.sectionsData
+      }
+      if (Array.isArray(headerData.topicsData)) {
+        topicsData = headerData.topicsData
+      }
     }
   } catch (err) {
     const annotatingAxiosError = errors.helpers.annotateAxiosError(err)
