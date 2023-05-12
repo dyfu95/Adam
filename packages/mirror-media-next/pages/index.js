@@ -160,19 +160,19 @@ export async function getServerSideProps({ res, req }) {
         url: `${URL_STATIC_POST_EXTERNAL}01.json`,
         timeout: API_TIMEOUT,
       }),
+      fetchHeaderDataInDefaultPageLayout(),
     ])
 
-    const headerData = await fetchHeaderDataInDefaultPageLayout(globalLogFields)
-    sectionsData = headerData.sectionsData
-    topicsData = headerData.topicsData
     responses.forEach((response) => {
       if (response.status === 'fulfilled') {
-        console.log(
-          JSON.stringify({
-            severity: 'INFO',
-            message: `Successfully fetch data on ${response.value.request.res.responseUrl}`,
-          })
-        )
+        //TODO: because `fetchHeaderDataInDefaultPageLayout` will not return `value` which contain `request?.res?.responseUrl`,
+        //so we temporarily comment the console to prevent error.
+        // console.log(
+        //   JSON.stringify({
+        //     severity: 'INFO',
+        //     message: `Successfully fetch data on ${response.value?.request?.res?.responseUrl}`,
+        //   })
+        // )
       } else {
         const rejectedReason = response.reason
         const annotatingAxiosError =
@@ -189,6 +189,7 @@ export async function getServerSideProps({ res, req }) {
               0,
               0
             ),
+            ...globalLogFields,
           })
         )
       }
@@ -200,7 +201,8 @@ export async function getServerSideProps({ res, req }) {
 
     /** @type {PromiseFulfilledResult<AxiosPostResponse>} */
     const postResponse = responses[1].status === 'fulfilled' && responses[1]
-
+    const headerDataResponse =
+      responses[2].status === 'fulfilled' && responses[2]
     flashNewsData = Array.isArray(flashNewsResponse.value?.data?._items)
       ? flashNewsResponse.value?.data?._items
       : []
@@ -211,6 +213,12 @@ export async function getServerSideProps({ res, req }) {
       ? postResponse.value?.data?.latest
       : []
     latestNewsTimestamp = postResponse.value?.data?.timestamp
+    sectionsData = Array.isArray(headerDataResponse.value?.sectionsData)
+      ? headerDataResponse.value?.sectionsData
+      : []
+    topicsData = Array.isArray(headerDataResponse.value?.topicsData)
+      ? headerDataResponse.value?.topicsData
+      : []
   } catch (err) {
     const annotatingError = errors.helpers.wrap(
       err,
@@ -234,7 +242,27 @@ export async function getServerSideProps({ res, req }) {
       })
     )
   }
-
+  try {
+    const headerData = await fetchHeaderDataInDefaultPageLayout()
+    sectionsData = headerData.sectionsData
+    topicsData = headerData.topicsData
+  } catch (error) {
+    console.error(
+      JSON.stringify({
+        severity: 'ERROR',
+        message: errors.helpers.printAll(
+          error,
+          {
+            withStack: true,
+            withPayload: true,
+          },
+          0,
+          0
+        ),
+        ...globalLogFields,
+      })
+    )
+  }
   //request fetched by `apollo`, should replace request fetched by `axios` in the future
   try {
     const editorChoiceApollo = await client.query({
