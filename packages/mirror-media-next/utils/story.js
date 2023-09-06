@@ -64,12 +64,49 @@ const copyAndSliceDraftBlock = (
 
   if (shouldRenderDraft) {
     const contentWithoutEmptyBlock = removeEmptyContentBlock(content)
+    /** @type {Content}*/
     const newContent = JSON.parse(JSON.stringify(contentWithoutEmptyBlock))
-
+    console.log('newContent', newContent)
     if (newContent.blocks.length >= endIndex) {
-      newContent.blocks = newContent.blocks.slice(startIndex, endIndex)
+      console.log('condition1')
+      const noAtomicContent = newContent.blocks.filter(
+        (block) => block.type !== 'atomic'
+      )
+      const slicedNoAtomicContent = noAtomicContent.slice(startIndex, endIndex)
+      const startKey = slicedNoAtomicContent[0].key
+      const endKey =
+        slicedNoAtomicContent[slicedNoAtomicContent.length - 1]?.key
+
+      const startKeyItemInNewContentKey = newContent.blocks.findIndex(
+        (block) => block.key === startKey
+      )
+      const endKeyItemInNewContentKey = newContent.blocks.findIndex(
+        (block) => block.key === endKey
+      )
+
+      const startIndexNew =
+        startIndex <= 0 ? 0 : startKeyItemInNewContentKey - 1
+      const endIndexNew =
+        endIndex >= newContent.blocks.length
+          ? endIndex
+          : endKeyItemInNewContentKey + 1
+
+      newContent.blocks = newContent.blocks.slice(startIndexNew, endIndexNew)
     } else if (newContent.blocks.length > startIndex) {
-      newContent.blocks = newContent.blocks.slice(startIndex)
+      const noAtomicContent = newContent.blocks.filter(
+        (block) => block.type !== 'atomic'
+      )
+      const slicedNoAtomicContent = noAtomicContent.slice(startIndex, endIndex)
+
+      const startKey = slicedNoAtomicContent[0].key
+
+      const startKeyItemInNewContentKey = newContent.blocks.findIndex(
+        (block) => block.key === startKey
+      )
+      console.log(startKeyItemInNewContentKey)
+      const startIndexNew = startIndex <= 0 ? 0 : startKeyItemInNewContentKey
+
+      newContent.blocks = newContent.blocks.slice(startIndexNew)
     } else {
       return { blocks: [], entityMap: {} }
     }

@@ -73,6 +73,7 @@ export default function ArticleContent({
 
       {blocksLength > 1 && (
         <>
+          <div>廣告1</div>
           {shouldShowAd && (
             <StyledGPTAd pageKey={pageKeyForGptAd} adKey="MB_AT1" />
           )}
@@ -89,6 +90,7 @@ export default function ArticleContent({
 
       {blocksLength > 5 && (
         <>
+          <div>廣告2</div>
           {shouldShowAd && (
             <StyledGPTAd pageKey={pageKeyForGptAd} adKey="MB_AT2" />
           )}
@@ -106,34 +108,18 @@ export default function ArticleContent({
   )
 
   //The GPT advertisement for the `desktop` version only `AT1`
-  const PC_contentJsx = (
-    <Wrapper>
-      <DraftRenderBlock
-        rawContentBlock={copyAndSliceDraftBlock(content, 0, 3)}
-        contentLayout="normal"
-        wrapper={(children) => <ContentContainer>{children}</ContentContainer>}
-      />
-
-      {blocksLength > 3 && (
-        <>
-          {shouldShowAd && (
-            <StyledGPTAd pageKey={pageKeyForGptAd} adKey="PC_AT1" />
-          )}
-
-          <DraftRenderBlock
-            rawContentBlock={copyAndSliceDraftBlock(content, 3)}
-            contentLayout="normal"
-            wrapper={(children) => (
-              <ContentContainer>{children}</ContentContainer>
-            )}
-          />
-        </>
-      )}
-    </Wrapper>
-  )
+  // const PC_contentJsx = (
+  //   <Wrapper>
+  //     <DraftRenderBlock
+  //       rawContentBlock={copyAndSliceDraftBlock(content, 0, 3)}
+  //       contentLayout="normal"
+  //       wrapper={(children) => <ContentContainer>{children}</ContentContainer>}
+  //     />
+  //   </Wrapper>
+  // )
 
   const contentJsx =
-    windowDimensions.width > 1200 ? PC_contentJsx : MB_contentJsx
+    windowDimensions.width > 1200 ? MB_contentJsx : MB_contentJsx
 
   return <>{contentJsx}</>
 }
