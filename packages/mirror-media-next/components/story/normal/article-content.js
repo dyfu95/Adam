@@ -66,74 +66,74 @@ export default function ArticleContent({
   const MB_contentJsx = (
     <Wrapper>
       <DraftRenderBlock
-        rawContentBlock={copyAndSliceDraftBlock(content, 0, 1)}
+        rawContentBlock={copyAndSliceDraftBlock(content, 1, 2)}
         contentLayout="normal"
         wrapper={(children) => <ContentContainer>{children}</ContentContainer>}
       />
 
       {blocksLength > 1 && (
         <>
-          {shouldShowAd && (
+          {/* {shouldShowAd && (
             <StyledGPTAd pageKey={pageKeyForGptAd} adKey="MB_AT1" />
-          )}
+          )} */}
 
-          <DraftRenderBlock
+          {/* <DraftRenderBlock
             rawContentBlock={copyAndSliceDraftBlock(content, 1, 5)}
             contentLayout="normal"
             wrapper={(children) => (
               <ContentContainer>{children}</ContentContainer>
             )}
-          />
+          /> */}
         </>
       )}
 
       {blocksLength > 5 && (
         <>
-          {shouldShowAd && (
+          {/* {shouldShowAd && (
             <StyledGPTAd pageKey={pageKeyForGptAd} adKey="MB_AT2" />
-          )}
+          )} */}
 
-          <DraftRenderBlock
+          {/* <DraftRenderBlock
             rawContentBlock={copyAndSliceDraftBlock(content, 5)}
             contentLayout="normal"
             wrapper={(children) => (
               <ContentContainer>{children}</ContentContainer>
             )}
-          />
+          /> */}
         </>
       )}
     </Wrapper>
   )
 
   //The GPT advertisement for the `desktop` version only `AT1`
-  const PC_contentJsx = (
-    <Wrapper>
-      <DraftRenderBlock
-        rawContentBlock={copyAndSliceDraftBlock(content, 0, 3)}
-        contentLayout="normal"
-        wrapper={(children) => <ContentContainer>{children}</ContentContainer>}
-      />
+  // const PC_contentJsx = (
+  //   <Wrapper>
+  //     <DraftRenderBlock
+  //       rawContentBlock={copyAndSliceDraftBlock(content, 0, 3)}
+  //       contentLayout="normal"
+  //       wrapper={(children) => <ContentContainer>{children}</ContentContainer>}
+  //     />
 
-      {blocksLength > 3 && (
-        <>
-          {shouldShowAd && (
-            <StyledGPTAd pageKey={pageKeyForGptAd} adKey="PC_AT1" />
-          )}
+  //     {blocksLength > 3 && (
+  //       <>
+  //         {shouldShowAd && (
+  //           <StyledGPTAd pageKey={pageKeyForGptAd} adKey="PC_AT1" />
+  //         )}
 
-          <DraftRenderBlock
-            rawContentBlock={copyAndSliceDraftBlock(content, 3)}
-            contentLayout="normal"
-            wrapper={(children) => (
-              <ContentContainer>{children}</ContentContainer>
-            )}
-          />
-        </>
-      )}
-    </Wrapper>
-  )
+  //         <DraftRenderBlock
+  //           rawContentBlock={copyAndSliceDraftBlock(content, 3)}
+  //           contentLayout="normal"
+  //           wrapper={(children) => (
+  //             <ContentContainer>{children}</ContentContainer>
+  //           )}
+  //         />
+  //       </>
+  //     )}
+  //   </Wrapper>
+  // )
 
   const contentJsx =
-    windowDimensions.width > 1200 ? PC_contentJsx : MB_contentJsx
+    windowDimensions.width > 1200 ? MB_contentJsx : MB_contentJsx
 
   return <>{contentJsx}</>
 }

@@ -72,35 +72,45 @@ const copyAndSliceDraftBlock = (
     // console.log('contentWithoutEmptyBlock', contentWithoutEmptyBlock)
     console.log(newContent)
     if (newContent.blocks.length >= endIndex) {
+      let noAtomicStartIndex = startIndex
       let noAtomicIndex = 0
-      let allIndex = 0
       let allStartIndex = 0
-      let _startIndex = startIndex
+      let allEndIndex = 0
 
+      for (let i = startIndex; i < newContent.blocks.length; i++) {
+        console.log(newContent.blocks[i])
+        if (newContent.blocks[i].type !== 'atomic') {
+          noAtomicStartIndex += 1
+        }
+
+        if (noAtomicStartIndex === startIndex) {
+          console.log(i)
+          allStartIndex = i + 2
+          break
+        }
+      }
       for (let i = 0; i < newContent.blocks.length; i++) {
         if (newContent.blocks[i].type !== 'atomic') {
           if (noAtomicIndex < endIndex) {
             noAtomicIndex += 1
           }
-          if (startIndex !== 0 && _startIndex < startIndex) {
-            _startIndex += 1
-          }
         }
-        if (noAtomicIndex === startIndex) {
-          allStartIndex = i
-        }
+
         if (noAtomicIndex === endIndex) {
-          allIndex = i
+          allEndIndex = i + 1
           break
         }
       }
-      console.log('_startIndex', _startIndex)
+
       console.log('endIndex', endIndex)
       console.log('allStartIndex', allStartIndex)
-      console.log('allIndex', allIndex)
+      console.log('allIndex', allEndIndex)
       // const newArray = newContent.blocks.slice(startIndex, allIndex)
       // console.log('newArray:', newArray)
-      newContent.blocks = newContent.blocks.slice(startIndex, allIndex)
+      newContent.blocks = newContent.blocks.slice(
+        startIndex === 0 ? startIndex : allStartIndex,
+        allEndIndex
+      )
     } else if (newContent.blocks.length > startIndex) {
       let noAtomicIndex = 0
       let allIndex = 0
