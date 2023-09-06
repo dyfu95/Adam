@@ -1,4 +1,5 @@
 import { MirrorMedia } from '@mirrormedia/lilith-draft-renderer'
+import { all } from 'axios'
 const { removeEmptyContentBlock, hasContentInRawContentBlock } = MirrorMedia
 
 /**
@@ -64,12 +65,55 @@ const copyAndSliceDraftBlock = (
 
   if (shouldRenderDraft) {
     const contentWithoutEmptyBlock = removeEmptyContentBlock(content)
+    /**
+     * @type {Content}
+     */
     const newContent = JSON.parse(JSON.stringify(contentWithoutEmptyBlock))
-
+    // console.log('contentWithoutEmptyBlock', contentWithoutEmptyBlock)
+    console.log(newContent)
     if (newContent.blocks.length >= endIndex) {
-      newContent.blocks = newContent.blocks.slice(startIndex, endIndex)
+      let noAtomicIndex = 0
+      let allIndex = 0
+      let allStartIndex = 0
+      let _startIndex = startIndex
+
+      for (let i = 0; i < newContent.blocks.length; i++) {
+        if (newContent.blocks[i].type !== 'atomic') {
+          if (noAtomicIndex < endIndex) {
+            noAtomicIndex += 1
+          }
+          if (startIndex !== 0 && _startIndex < startIndex) {
+            _startIndex += 1
+          }
+        }
+        if (noAtomicIndex === startIndex) {
+          allStartIndex = i
+        }
+        if (noAtomicIndex === endIndex) {
+          allIndex = i
+          break
+        }
+      }
+      console.log('_startIndex', _startIndex)
+      console.log('endIndex', endIndex)
+      console.log('allStartIndex', allStartIndex)
+      console.log('allIndex', allIndex)
+      // const newArray = newContent.blocks.slice(startIndex, allIndex)
+      // console.log('newArray:', newArray)
+      newContent.blocks = newContent.blocks.slice(startIndex, allIndex)
     } else if (newContent.blocks.length > startIndex) {
-      newContent.blocks = newContent.blocks.slice(startIndex)
+      let noAtomicIndex = 0
+      let allIndex = 0
+      for (let i = 0; i < newContent.blocks.length; i++) {
+        if (newContent.blocks[i].type !== 'atomic') {
+          noAtomicIndex += 1
+        }
+        if (noAtomicIndex === endIndex) {
+          allIndex = i
+          break
+        }
+      }
+      newContent.blocks = newContent.blocks.slice(allIndex)
     } else {
       return { blocks: [], entityMap: {} }
     }
