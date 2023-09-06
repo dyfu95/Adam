@@ -68,7 +68,7 @@ const copyAndSliceDraftBlock = (
     const newContent = JSON.parse(JSON.stringify(contentWithoutEmptyBlock))
     console.log('newContent', newContent)
     if (newContent.blocks.length >= endIndex) {
-      console.log('condition1')
+      // console.log('condition1')
       const noAtomicContent = newContent.blocks.filter(
         (block) => block.type !== 'atomic'
       )
@@ -83,14 +83,49 @@ const copyAndSliceDraftBlock = (
       const endKeyItemInNewContentKey = newContent.blocks.findIndex(
         (block) => block.key === endKey
       )
+      console.log(
+        'startKeyItemInNewContentKey, endKeyItemInNewContentKey',
+        startKeyItemInNewContentKey,
+        endKeyItemInNewContentKey
+      )
+      console.log(
+        'item in newContent',
+        newContent.blocks[startKeyItemInNewContentKey],
+        newContent.blocks[endKeyItemInNewContentKey]
+      )
+      function test() {
+        if (startIndex === 0 || startKeyItemInNewContentKey === 0) {
+          return 0
+        } else if (
+          newContent.blocks[startKeyItemInNewContentKey - 1].type === 'atomic'
+        ) {
+          return startKeyItemInNewContentKey - 1
+        } else {
+          console.log(
+            'test condition 3,startKeyItemInNewContentKey is ',
+            startKeyItemInNewContentKey
+          )
+          return startKeyItemInNewContentKey
+        }
+      }
 
-      const startIndexNew =
-        startIndex <= 0 ? 0 : startKeyItemInNewContentKey - 1
-      const endIndexNew =
-        endIndex >= newContent.blocks.length
-          ? endIndex
-          : endKeyItemInNewContentKey + 1
+      console.log(
+        'startKeyItemInNewContentKey',
+        startKeyItemInNewContentKey - 1
+      )
+      const startIndexNew = test()
+      function test2() {
+        if (endIndex >= newContent.blocks.length) {
+          return endIndex
+        }
+        if (endKeyItemInNewContentKey === 0) {
+          return endKeyItemInNewContentKey + 1
+        }
+        return endKeyItemInNewContentKey + 1
+      }
+      const endIndexNew = test2()
 
+      console.log(startIndexNew, endIndexNew)
       newContent.blocks = newContent.blocks.slice(startIndexNew, endIndexNew)
     } else if (newContent.blocks.length > startIndex) {
       const noAtomicContent = newContent.blocks.filter(

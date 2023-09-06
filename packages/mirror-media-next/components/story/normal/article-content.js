@@ -95,13 +95,13 @@ export default function ArticleContent({
             <StyledGPTAd pageKey={pageKeyForGptAd} adKey="MB_AT2" />
           )}
 
-          <DraftRenderBlock
+          {/* <DraftRenderBlock
             rawContentBlock={copyAndSliceDraftBlock(content, 5)}
             contentLayout="normal"
             wrapper={(children) => (
               <ContentContainer>{children}</ContentContainer>
             )}
-          />
+          /> */}
         </>
       )}
     </Wrapper>
