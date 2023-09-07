@@ -96,15 +96,7 @@ const copyAndSliceDraftBlock = (
       function test() {
         if (startIndex === 0 || startKeyItemInNewContentKey === 0) {
           return 0
-        } else if (
-          newContent.blocks[startKeyItemInNewContentKey - 1].type === 'atomic'
-        ) {
-          return startKeyItemInNewContentKey - 1
         } else {
-          console.log(
-            'test condition 3,startKeyItemInNewContentKey is ',
-            startKeyItemInNewContentKey
-          )
           return startKeyItemInNewContentKey
         }
       }
