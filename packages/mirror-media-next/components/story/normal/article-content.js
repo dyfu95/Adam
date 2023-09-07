@@ -66,7 +66,7 @@ export default function ArticleContent({
   const MB_contentJsx = (
     <Wrapper>
       <DraftRenderBlock
-        rawContentBlock={copyAndSliceDraftBlock(content, 1, 2)}
+        rawContentBlock={copyAndSliceDraftBlock(content, 0, 1)}
         contentLayout="normal"
         wrapper={(children) => <ContentContainer>{children}</ContentContainer>}
       />
@@ -77,13 +77,13 @@ export default function ArticleContent({
             <StyledGPTAd pageKey={pageKeyForGptAd} adKey="MB_AT1" />
           )} */}
 
-          {/* <DraftRenderBlock
+          <DraftRenderBlock
             rawContentBlock={copyAndSliceDraftBlock(content, 1, 5)}
             contentLayout="normal"
             wrapper={(children) => (
               <ContentContainer>{children}</ContentContainer>
             )}
-          /> */}
+          />
         </>
       )}
 

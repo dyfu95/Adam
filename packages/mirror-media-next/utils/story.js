@@ -84,8 +84,7 @@ const copyAndSliceDraftBlock = (
         }
 
         if (noAtomicStartIndex === startIndex) {
-          console.log(i)
-          allStartIndex = i + 2
+          allStartIndex = i
           break
         }
       }
